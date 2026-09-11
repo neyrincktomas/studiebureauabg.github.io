@@ -1426,6 +1426,51 @@ De grootste energetische winst wordt verwacht door een geïntegreerde renovatie 
                     </div>
                     <div id="prmaatregelContainer"></div>
                 </div>
+                <div
+                    style="border: 1px solid #ced4da; padding: 15px; border-radius: 6px; background: #fff; margin-bottom: 15px;">
+                    <div style="font-weight: bold; margin-bottom: 10px; color: #333;">Samenvatting energie- en
+                        besparingsanalyse duurzaam scenario</div>
+
+                    <div style="display: flex; flex-direction: column; gap: 8px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <label style="flex: 2; font-size: 0.9em;">Indicatieve financiële energiebesparing
+                                (€/jaar):</label>
+                            <input type="text" id="financiele-energiebesparing" placeholder="0"
+                                style="width: 150px; padding: 6px 8px; border: 1px solid #ced4da; border-radius: 4px;"
+                                oninput="berekenDuurzaamAnalyse()">
+                        </div>
+
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <label style="flex: 2; font-size: 0.9em;">PV-productie gemeenschappelijke delen
+                                (kWh/jaar):</label>
+                            <input type="text" id="pv-productie" placeholder="0"
+                                style="width: 150px; padding: 6px 8px; border: 1px solid #ced4da; border-radius: 4px;"
+                                oninput="berekenDuurzaamAnalyse()">
+                        </div>
+
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <label style="flex: 2; font-size: 0.9em;">Indicatief financieel effect PV (€/jaar):</label>
+                            <input type="text" id="financieel-effect-pv" placeholder="0"
+                                style="width: 150px; padding: 6px 8px; border: 1px solid #ced4da; border-radius: 4px;"
+                                oninput="berekenDuurzaamAnalyse()">
+                        </div>
+
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <label style="flex: 2; font-size: 0.9em; font-weight: bold;">Totaal indicatief jaarlijks
+                                financieel effect (€/jaar):</label>
+                            <input type="text" id="totaal-financieel-effect" placeholder="0"
+                                style="width: 150px; padding: 6px 8px; border: 1px solid #ced4da; border-radius: 4px; font-weight: bold;"
+                                readonly>
+                        </div>
+
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <label style="flex: 2; font-size: 0.9em;">Indicatieve CO2-reductie (ton CO2/jaar):</label>
+                            <input type="text" id="co2-reductie" placeholder="0,0"
+                                style="width: 150px; padding: 6px 8px; border: 1px solid #ced4da; border-radius: 4px;"
+                                oninput="berekenDuurzaamAnalyse()">
+                        </div>
+                    </div>
+                </div>
             </div>
 
 
@@ -1976,52 +2021,7 @@ De grootste energetische winst wordt verwacht door een geïntegreerde renovatie 
                     : '';
             }
         }
-        function berekenVerschilEnTotalen() {
-            const rijen = document.querySelectorAll('.verliespost-row');
-            let som0 = 0;
-            let somInst = 0;
-            let somVerschil = 0;
-            let somDuur = 0;
 
-            rijen.forEach(rij => {
-                const input0 = rij.querySelector('.meting-0');
-                const inputInst = rij.querySelector('.meting-inst');
-                const inputVerschil = rij.querySelector('.meting-verschil');
-                const inputDuur = rij.querySelector('.meting-duur');
-
-                let val0Raw = input0.value.replace(/\./g, '').replace(',', '.');
-                let valInstRaw = inputInst.value.replace(/\./g, '').replace(',', '.');
-                let valDuurRaw = inputDuur ? inputDuur.value.replace(/\./g, '').replace(',', '.') : '0';
-
-                let val0 = parseFloat(val0Raw) || 0;
-                let valInst = parseFloat(valInstRaw) || 0;
-                let valDuur = parseFloat(valDuurRaw) || 0;
-
-                let verschil = val0 - valInst;
-
-                if (input0.value !== "") input0.value = val0.toLocaleString('nl-NL', { maximumFractionDigits: 0 });
-                if (inputInst.value !== "") inputInst.value = valInst.toLocaleString('nl-NL', { maximumFractionDigits: 0 });
-                if (inputDuur && inputDuur.value !== "") inputDuur.value = valDuur.toLocaleString('nl-NL', { maximumFractionDigits: 0 });
-                inputVerschil.value = verschil.toLocaleString('nl-NL', { maximumFractionDigits: 0 });
-
-                som0 += val0;
-                somInst += valInst;
-                somVerschil += verschil;
-                somDuur += valDuur;
-            });
-
-            const elTotaal0 = document.getElementById('totaal-0');
-            if (elTotaal0) elTotaal0.innerText = som0.toLocaleString('nl-NL', { maximumFractionDigits: 0 });
-
-            const elTotaalInst = document.getElementById('totaal-inst');
-            if (elTotaalInst) elTotaalInst.innerText = somInst.toLocaleString('nl-NL', { maximumFractionDigits: 0 });
-
-            const elTotaalVerschil = document.getElementById('totaal-verschil');
-            if (elTotaalVerschil) elTotaalVerschil.innerText = somVerschil.toLocaleString('nl-NL', { maximumFractionDigits: 0 });
-
-            const elTotaalDuur = document.getElementById('totaal-duur');
-            if (elTotaalDuur) elTotaalDuur.innerText = somDuur.toLocaleString('nl-NL', { maximumFractionDigits: 0 });
-        }
 
         function voegPostToe(index) {
             const container = document.getElementById(`posten-container-${index}`);
@@ -2092,6 +2092,21 @@ De grootste energetische winst wordt verwacht door een geïntegreerde renovatie 
             `;
 
             container.appendChild(nieuweRij);
+        }
+
+        function berekenDuurzaamAnalyse() {
+            let inputFinBesparing = document.getElementById('financiele-energiebesparing');
+            let inputPvEffect = document.getElementById('financieel-effect-pv');
+            let inputTotaalFin = document.getElementById('totaal-financieel-effect');
+
+            let valFinBesparing = parseFloat(inputFinBesparing.value.replace(/\./g, '').replace(',', '.')) || 0;
+            let valPvEffect = parseFloat(inputPvEffect.value.replace(/\./g, '').replace(',', '.')) || 0;
+
+            let totaalFin = valFinBesparing + valPvEffect;
+
+            if (inputTotaalFin) {
+                inputTotaalFin.value = totaalFin.toLocaleString('nl-NL', { maximumFractionDigits: 0 });
+            }
         }
 
 
@@ -2869,6 +2884,60 @@ De grootste energetische winst wordt verwacht door een geïntegreerde renovatie 
                     }
                 });
 
+                function berekenVerschilEnTotalen() {
+                    const rijen = document.querySelectorAll('.verliespost-row');
+                    let som0 = 0;
+                    let somInst = 0;
+                    let somVerschil = 0;
+                    let somDuur = 0;
+
+                    rijen.forEach(rij => {
+                        const input0 = rij.querySelector('.meting-0');
+                        const inputInst = rij.querySelector('.meting-inst');
+                        const inputVerschil = rij.querySelector('.meting-verschil');
+                        const inputDuur = rij.querySelector('.meting-duur');
+
+                        let val0Raw = input0.value.replace(/\./g, '').replace(',', '.');
+                        let valInstRaw = inputInst.value.replace(/\./g, '').replace(',', '.');
+                        let valDuurRaw = inputDuur ? inputDuur.value.replace(/\./g, '').replace(',', '.') : '0';
+
+                        let val0 = parseFloat(val0Raw) || 0;
+                        let valInst = parseFloat(valInstRaw) || 0;
+                        let valDuur = parseFloat(valDuurRaw) || 0;
+
+                        let verschil = val0 - valInst;
+
+                        if (input0.value !== "") input0.value = val0.toLocaleString('nl-NL', { maximumFractionDigits: 0 });
+                        if (inputInst.value !== "") inputInst.value = valInst.toLocaleString('nl-NL', { maximumFractionDigits: 0 });
+                        if (inputDuur && inputDuur.value !== "") inputDuur.value = valDuur.toLocaleString('nl-NL', { maximumFractionDigits: 0 });
+                        inputVerschil.value = verschil.toLocaleString('nl-NL', { maximumFractionDigits: 0 });
+
+                        som0 += val0;
+                        somInst += valInst;
+                        somVerschil += verschil;
+                        somDuur += valDuur;
+                    });
+
+                    const elTotaal0 = document.getElementById('totaal-0');
+                    if (elTotaal0) elTotaal0.innerText = som0.toLocaleString('nl-NL', { maximumFractionDigits: 0 });
+
+                    const elTotaalInst = document.getElementById('totaal-inst');
+                    if (elTotaalInst) elTotaalInst.innerText = somInst.toLocaleString('nl-NL', { maximumFractionDigits: 0 });
+
+                    const elTotaalVerschil = document.getElementById('totaal-verschil');
+                    if (elTotaalVerschil) elTotaalVerschil.innerText = somVerschil.toLocaleString('nl-NL', { maximumFractionDigits: 0 });
+
+                    const elTotaalDuur = document.getElementById('totaal-duur');
+                    if (elTotaalDuur) elTotaalDuur.innerText = somDuur.toLocaleString('nl-NL', { maximumFractionDigits: 0 });
+
+                    // --- HIER VOEG JE HET TOE AAN HET EINDE VAN DE FUNCTIE ---
+                    let verschilDuur0 = somDuur - som0;
+                    const elTotaalVerschilDuur0 = document.getElementById('totaal-verschil-duur-0');
+                    if (elTotaalVerschilDuur0) {
+                        elTotaalVerschilDuur0.innerText = verschilDuur0.toLocaleString('nl-NL', { maximumFractionDigits: 0 });
+                    }
+                }
+
                 const onderhoudsLijst = [];
 
                 document.querySelectorAll('.onderhoudspost-rij').forEach(rij => {
@@ -2976,6 +3045,14 @@ De grootste energetische winst wordt verwacht door een geïntegreerde renovatie 
                         });
                     }
                 });
+
+                let rawDuur = document.getElementById('totaal-duur')?.innerText || "0";
+                let raw0 = document.getElementById('totaal-0')?.innerText || "0";
+
+                let valDuur = parseFloat(rawDuur.replace(/\./g, '').replace(',', '.')) || 0;
+                let val0 = parseFloat(raw0.replace(/\./g, '').replace(',', '.')) || 0;
+
+                let verschilDuur0 = valDuur - val0;
 
 
                 const data = {
@@ -3256,10 +3333,11 @@ De grootste energetische winst wordt verwacht door een geïntegreerde renovatie 
                     totaal_impact: somImpact > 0 ? '€ ' + somImpact.toLocaleString('nl-BE') : '€ 0',
 
                     verliesposten: verliespostenData,
-                    totaalMeting0: totaalMeting0.toLocaleString('nl-NL', { maximumFractionDigits: 0 }),
-                    totaalMetingInst: totaalMetingInst.toLocaleString('nl-NL', { maximumFractionDigits: 0 }),
-                    totaalMetingDuur: totaalMetingDuur.toLocaleString('nl-NL', { maximumFractionDigits: 0 }),
-                    totaalVerschil: totaalVerschil.toLocaleString('nl-NL', { maximumFractionDigits: 0 }),
+                    totaalMeting0: document.getElementById('totaal-0') ? document.getElementById('totaal-0').innerText : '0',
+                    totaalMetingInst: document.getElementById('totaal-inst') ? document.getElementById('totaal-inst').innerText : '0',
+                    totaalMetingDuur: document.getElementById('totaal-duur') ? document.getElementById('totaal-duur').innerText : '0',
+                    totaalVerschil: document.getElementById('totaal-verschil') ? document.getElementById('totaal-verschil').innerText : '0',
+                    verschilduur0: (somDuur - som0).toLocaleString('nl-NL', { maximumFractionDigits: 0 }),
 
                     renovatiemaatregel: renovatieData,
 
@@ -3270,6 +3348,12 @@ De grootste energetische winst wordt verwacht door een geïntegreerde renovatie 
                     enmaatregel: enmaatregellijst,
 
                     prmaatregel: prmaatregellijst,
+
+                    financieleEnergiebesparing: (parseFloat(document.getElementById('financiele-energiebesparing')?.value) || 0).toLocaleString('nl-NL', { maximumFractionDigits: 0 }),
+                    pvProductie: (parseFloat(document.getElementById('pv-productie')?.value) || 0).toLocaleString('nl-NL', { maximumFractionDigits: 0 }),
+                    financieelEffectPv: (parseFloat(document.getElementById('financieel-effect-pv')?.value) || 0).toLocaleString('nl-NL', { maximumFractionDigits: 0 }),
+                    totaalFinancieelEffect: document.getElementById('totaal-financieel-effect')?.value || "0",
+                    co2Reductie: document.getElementById('co2-reductie')?.value || "0",
 
                 };
                 doc.render(data);
