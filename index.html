@@ -1471,6 +1471,29 @@ De grootste energetische winst wordt verwacht door een geïntegreerde renovatie 
                         </div>
                     </div>
                 </div>
+                <div class="sectie"
+                    style="border: 1px solid #ccc; padding: 15px; border-radius: 6px; background-color: #ffffff; margin-bottom: 20px;">
+                    <div style="background: #f4f8f3; padding: 10px; border-radius: 4px; border: 1px solid #d0e2cd;">
+                        <label for="onderhoud_input"><b>Kosten voor onderhoud en keuringen over de volledige
+                                periode:</b></label>
+                        <input type="text" id="onderhoud_input" placeholder="Bijv. 1250000"
+                            style="width: 100%; margin-top: 8px; padding: 4px;">
+                    </div>
+                </div>
+                <div class="sectie"
+                    style="border: 1px solid #ccc; padding: 15px; border-radius: 6px; background-color: #ffffff; margin-bottom: 20px;">
+                    <div
+                        style="margin-bottom: 15px; background: #f4f8f3; padding: 10px; border-radius: 4px; border: 1px solid #d0e2cd;">
+                        <label for="aantal_tijdlijn"><b>Hoeveel periodes voor de samenvattende tijdslijn duurzaam
+                                renovatiescenario wilt u
+                                toevoegen?</b></label>
+                        <input type="number" id="aantal_tijdlijn" min="0" value="0"
+                            style="width: 60px; margin-left: 8px; padding: 4px;"
+                            oninput="updateElementenAantal('tijdlijn')">
+                    </div>
+
+                    <div id="tijdlijnContainer"></div>
+                </div>
             </div>
 
 
@@ -1826,6 +1849,21 @@ De grootste energetische winst wordt verwacht door een geïntegreerde renovatie 
                             <option value="Middel">Middel</option>
                             <option value="Laag">Laag</option>
                         </select>
+                    </div>
+                `;
+
+            } else if (sectieNaam === 'tijdlijn') {
+                div.className = `${sectieNaam}-item tijdlijn-rij`;
+                div.innerHTML = `
+                    <div style="font-weight: bold; margin-bottom: 8px; color: #333;">Tijdlijn item #${index}</div>
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        <input type="text" class="periode-input" placeholder="Periode (bijv. 2026)" style="width: 20%; padding: 4px;">
+                        <input type="text" class="maatregelen-input" placeholder="Maatregelen" style="width: 35%; padding: 4px;">
+                        <div style="width: 25%; display: flex; align-items: center; gap: 4px;">
+                            <span style="font-weight: bold; color: #555;">€</span>
+                            <input type="number" class="kosten-input" placeholder="Indicatieve kost" style="width: 100%; padding: 4px;">
+                        </div>
+                        <input type="text" class="doel-input" placeholder="Doel" style="width: 20%; padding: 4px;">
                     </div>
                 `;
 
@@ -2957,24 +2995,40 @@ De grootste energetische winst wordt verwacht door een geïntegreerde renovatie 
                 });
 
                 const remaatregelenLijst = [];
+                let totaalKosten = 0;
 
-                document.querySelectorAll('.remaatregel-rij').forEach(rij => {
-                    const naam = rij.querySelector('.naam-input')?.value || '';
+                const rijen = document.querySelectorAll('.remaatregel-rij');
+                console.log("Aantal gevonden rijen:", rijen.length); // Wordt dit 0? Dan klopt de class '.remaatregel-rij' niet in je HTML.
+
+                rijen.forEach((rij, index) => {
+                    const naamInput = rij.querySelector('.naam-input');
+                    const kostenInput = rij.querySelector('.kosten-input');
+
+                    const naam = naamInput ? naamInput.value : '';
+                    const kostenRaw = kostenInput ? kostenInput.value : '0';
+
+                    console.log(`Rij ${index} - Naam: "${naam}", Kosten-inputwaarde: "${kostenRaw}"`);
+
+                    const schoneWaarde = kostenRaw.replace(/\./g, '').replace(',', '.');
+                    const kostenVal = parseFloat(schoneWaarde) || 0;
+
                     const jaar = rij.querySelector('.jaar-input')?.value || '';
-                    const kostenVal = parseFloat(rij.querySelector('.kosten-input')?.value) || 0;
                     const impact = rij.querySelector('.impact-input')?.value || '';
                     const prioriteit = rij.querySelector('.prioriteit-input')?.value || '';
 
                     if (naam.trim() !== '') {
+                        totaalKosten += kostenVal;
+
                         remaatregelenLijst.push({
                             naam: naam,
                             jaar: jaar,
-                            kosten: '€ ' + kostenVal.toLocaleString('nl-NL'),
+                            kosten: '€ ' + kostenVal.toLocaleString('nl-NL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
                             impact: impact,
                             prioriteit: prioriteit
                         });
                     }
                 });
+                console.log("Eindtotaal berekend:", totaalKosten);
 
                 const enmaatregellijst = [];
 
@@ -3027,21 +3081,28 @@ De grootste energetische winst wordt verwacht door een geïntegreerde renovatie 
                     }
                 });
 
-                const prmaatregellijst = [];
+                const prmaatregelLijst = [];
+                let totaalKostenPr = 0; // Unieke variabele voor deze tabel
 
                 document.querySelectorAll('.prmaatregel-rij').forEach(rij => {
                     const maatregel = rij.querySelector('.maatregel-input')?.value || '';
                     const drager = rij.querySelector('.drager-input')?.value || '';
-                    const start = rij.querySelector('.startjaar-input')?.value || '';
-                    const kostenVal = parseFloat(rij.querySelector('.kosten-input')?.value) || 0;
+                    const start = rij.querySelector('.start-input')?.value || '';
+                    const kostenRaw = rij.querySelector('.kosten-input')?.value || '0';
                     const toelichting = rij.querySelector('.toelichting-input')?.value || '';
 
+                    // Maak het getal schoon en tel op
+                    const schoneWaarde = kostenRaw.replace(/\./g, '').replace(',', '.');
+                    const kostenVal = parseFloat(schoneWaarde) || 0;
+
                     if (maatregel.trim() !== '') {
-                        prmaatregellijst.push({
+                        totaalKostenPr += kostenVal;
+
+                        prmaatregelLijst.push({
                             maatregel: maatregel,
                             drager: drager,
                             start: start,
-                            kosten: '€ ' + Math.round(kostenVal).toLocaleString('nl-NL'),
+                            kosten: '€ ' + kostenVal.toLocaleString('nl-NL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
                             toelichting: toelichting
                         });
                     }
@@ -3055,6 +3116,36 @@ De grootste energetische winst wordt verwacht door een geïntegreerde renovatie 
 
                 let verschilDuur0 = valDuur - val0;
 
+                const tijdlijnLijst = [];
+                let totaalKostenTijdlijn = 0;
+
+                document.querySelectorAll('.tijdlijn-rij').forEach(rij => {
+                    const periode = rij.querySelector('.periode-input')?.value || '';
+                    const maatregelen = rij.querySelector('.maatregelen-input')?.value || '';
+                    const kostenRaw = rij.querySelector('.kosten-input')?.value || '0';
+                    const doel = rij.querySelector('.doel-input')?.value || '';
+
+                    // Maak het getal schoon en tel op
+                    const schoneWaarde = kostenRaw.replace(/\./g, '').replace(',', '.');
+                    const kostenVal = parseFloat(schoneWaarde) || 0;
+
+                    if (periode.trim() !== '' || maatregelen.trim() !== '') {
+                        totaalKostenTijdlijn += kostenVal;
+
+                        tijdlijnLijst.push({
+                            periode: periode,
+                            maatregelen: maatregelen,
+                            kosten: '€ ' + kostenVal.toLocaleString('nl-NL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+                            doel: doel
+                        });
+                    }
+                });
+
+                const onderhoudRaw = document.getElementById('onderhoud_input')?.value || '0';
+                const schoneOnderhoudWaarde = onderhoudRaw.replace(/\./g, '').replace(',', '.');
+                const onderhoudNummer = parseFloat(schoneOnderhoudWaarde) || 0;
+
+                const onderhoudKosten = '€ ' + onderhoudNummer.toLocaleString('nl-NL', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
 
                 const data = {
                     fotohoofd: fotoHoofdBuffer,
@@ -3348,7 +3439,7 @@ De grootste energetische winst wordt verwacht door een geïntegreerde renovatie 
 
                     enmaatregel: enmaatregellijst,
 
-                    prmaatregel: prmaatregellijst,
+                    prmaatregel: prmaatregelLijst,
 
                     financieleEnergiebesparing: (parseFloat(document.getElementById('financiele-energiebesparing')?.value) || 0).toLocaleString('nl-NL', { maximumFractionDigits: 0 }),
                     pvProductie: (parseFloat(document.getElementById('pv-productie')?.value) || 0).toLocaleString('nl-NL', { maximumFractionDigits: 0 }),
@@ -3356,7 +3447,15 @@ De grootste energetische winst wordt verwacht door een geïntegreerde renovatie 
                     totaalFinancieelEffect: document.getElementById('totaal-financieel-effect')?.value || "0",
                     co2Reductie: document.getElementById('co2-reductie')?.value || "0",
 
+                    totaalKosten: '€ ' + totaalKosten.toLocaleString('nl-NL', { minimumFractionDigits: 0, maximumFractionDigits: 0 }),
+                    totaalKostenPr: '€ ' + totaalKostenPr.toLocaleString('nl-NL', { minimumFractionDigits: 0, maximumFractionDigits: 0 }),
+
+                    tijdlijn: tijdlijnLijst,
+                    totaalKostenTijdlijn: '€ ' + totaalKostenTijdlijn.toLocaleString('nl-NL', { minimumFractionDigits: 0, maximumFractionDigits: 0 }),
+
+                    onderhoudKosten: onderhoudKosten,
                 };
+
                 doc.render(data);
 
                 const out = doc.getZip().generate({
