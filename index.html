@@ -2022,6 +2022,59 @@ De grootste energetische winst wordt verwacht door een geïntegreerde renovatie 
             }
         }
 
+        function berekenVerschilEnTotalen() {
+            const rijen = document.querySelectorAll('.verliespost-row');
+            let som0 = 0;
+            let somInst = 0;
+            let somVerschil = 0;
+            let somDuur = 0;
+
+            rijen.forEach(rij => {
+                const input0 = rij.querySelector('.meting-0');
+                const inputInst = rij.querySelector('.meting-inst');
+                const inputVerschil = rij.querySelector('.meting-verschil');
+                const inputDuur = rij.querySelector('.meting-duur');
+
+                let val0Raw = input0.value.replace(/\./g, '').replace(',', '.');
+                let valInstRaw = inputInst.value.replace(/\./g, '').replace(',', '.');
+                let valDuurRaw = inputDuur ? inputDuur.value.replace(/\./g, '').replace(',', '.') : '0';
+
+                let val0 = parseFloat(val0Raw) || 0;
+                let valInst = parseFloat(valInstRaw) || 0;
+                let valDuur = parseFloat(valDuurRaw) || 0;
+
+                let verschil = val0 - valInst;
+
+                if (input0.value !== "") input0.value = val0.toLocaleString('nl-NL', { maximumFractionDigits: 0 });
+                if (inputInst.value !== "") inputInst.value = valInst.toLocaleString('nl-NL', { maximumFractionDigits: 0 });
+                if (inputDuur && inputDuur.value !== "") inputDuur.value = valDuur.toLocaleString('nl-NL', { maximumFractionDigits: 0 });
+                inputVerschil.value = verschil.toLocaleString('nl-NL', { maximumFractionDigits: 0 });
+
+                som0 += val0;
+                somInst += valInst;
+                somVerschil += verschil;
+                somDuur += valDuur;
+            });
+
+            const elTotaal0 = document.getElementById('totaal-0');
+            if (elTotaal0) elTotaal0.innerText = som0.toLocaleString('nl-NL', { maximumFractionDigits: 0 });
+
+            const elTotaalInst = document.getElementById('totaal-inst');
+            if (elTotaalInst) elTotaalInst.innerText = somInst.toLocaleString('nl-NL', { maximumFractionDigits: 0 });
+
+            const elTotaalVerschil = document.getElementById('totaal-verschil');
+            if (elTotaalVerschil) elTotaalVerschil.innerText = somVerschil.toLocaleString('nl-NL', { maximumFractionDigits: 0 });
+
+            const elTotaalDuur = document.getElementById('totaal-duur');
+            if (elTotaalDuur) elTotaalDuur.innerText = somDuur.toLocaleString('nl-NL', { maximumFractionDigits: 0 });
+
+            // --- HIER VOEG JE HET TOE AAN HET EINDE VAN DE FUNCTIE ---
+            let verschilDuur0 = som0 - somDuur;
+            const elTotaalVerschilDuur0 = document.getElementById('totaal-verschil-duur-0');
+            if (elTotaalVerschilDuur0) {
+                elTotaalVerschilDuur0.innerText = verschilDuur0.toLocaleString('nl-NL', { maximumFractionDigits: 0 });
+            }
+        }
 
         function voegPostToe(index) {
             const container = document.getElementById(`posten-container-${index}`);
@@ -2884,59 +2937,7 @@ De grootste energetische winst wordt verwacht door een geïntegreerde renovatie 
                     }
                 });
 
-                function berekenVerschilEnTotalen() {
-                    const rijen = document.querySelectorAll('.verliespost-row');
-                    let som0 = 0;
-                    let somInst = 0;
-                    let somVerschil = 0;
-                    let somDuur = 0;
 
-                    rijen.forEach(rij => {
-                        const input0 = rij.querySelector('.meting-0');
-                        const inputInst = rij.querySelector('.meting-inst');
-                        const inputVerschil = rij.querySelector('.meting-verschil');
-                        const inputDuur = rij.querySelector('.meting-duur');
-
-                        let val0Raw = input0.value.replace(/\./g, '').replace(',', '.');
-                        let valInstRaw = inputInst.value.replace(/\./g, '').replace(',', '.');
-                        let valDuurRaw = inputDuur ? inputDuur.value.replace(/\./g, '').replace(',', '.') : '0';
-
-                        let val0 = parseFloat(val0Raw) || 0;
-                        let valInst = parseFloat(valInstRaw) || 0;
-                        let valDuur = parseFloat(valDuurRaw) || 0;
-
-                        let verschil = val0 - valInst;
-
-                        if (input0.value !== "") input0.value = val0.toLocaleString('nl-NL', { maximumFractionDigits: 0 });
-                        if (inputInst.value !== "") inputInst.value = valInst.toLocaleString('nl-NL', { maximumFractionDigits: 0 });
-                        if (inputDuur && inputDuur.value !== "") inputDuur.value = valDuur.toLocaleString('nl-NL', { maximumFractionDigits: 0 });
-                        inputVerschil.value = verschil.toLocaleString('nl-NL', { maximumFractionDigits: 0 });
-
-                        som0 += val0;
-                        somInst += valInst;
-                        somVerschil += verschil;
-                        somDuur += valDuur;
-                    });
-
-                    const elTotaal0 = document.getElementById('totaal-0');
-                    if (elTotaal0) elTotaal0.innerText = som0.toLocaleString('nl-NL', { maximumFractionDigits: 0 });
-
-                    const elTotaalInst = document.getElementById('totaal-inst');
-                    if (elTotaalInst) elTotaalInst.innerText = somInst.toLocaleString('nl-NL', { maximumFractionDigits: 0 });
-
-                    const elTotaalVerschil = document.getElementById('totaal-verschil');
-                    if (elTotaalVerschil) elTotaalVerschil.innerText = somVerschil.toLocaleString('nl-NL', { maximumFractionDigits: 0 });
-
-                    const elTotaalDuur = document.getElementById('totaal-duur');
-                    if (elTotaalDuur) elTotaalDuur.innerText = somDuur.toLocaleString('nl-NL', { maximumFractionDigits: 0 });
-
-                    // --- HIER VOEG JE HET TOE AAN HET EINDE VAN DE FUNCTIE ---
-                    let verschilDuur0 = somDuur - som0;
-                    const elTotaalVerschilDuur0 = document.getElementById('totaal-verschil-duur-0');
-                    if (elTotaalVerschilDuur0) {
-                        elTotaalVerschilDuur0.innerText = verschilDuur0.toLocaleString('nl-NL', { maximumFractionDigits: 0 });
-                    }
-                }
 
                 const onderhoudsLijst = [];
 
@@ -3337,7 +3338,7 @@ De grootste energetische winst wordt verwacht door een geïntegreerde renovatie 
                     totaalMetingInst: document.getElementById('totaal-inst') ? document.getElementById('totaal-inst').innerText : '0',
                     totaalMetingDuur: document.getElementById('totaal-duur') ? document.getElementById('totaal-duur').innerText : '0',
                     totaalVerschil: document.getElementById('totaal-verschil') ? document.getElementById('totaal-verschil').innerText : '0',
-                    verschilduur0: (somDuur - som0).toLocaleString('nl-NL', { maximumFractionDigits: 0 }),
+                    verschilduur0: (verschilDuur0).toLocaleString('nl-NL', { maximumFractionDigits: 0 }),
 
                     renovatiemaatregel: renovatieData,
 
